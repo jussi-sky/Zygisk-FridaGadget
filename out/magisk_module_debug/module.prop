@@ -1,0 +1,6 @@
+id=Zygisk-FridaGadget
+name=Zygisk-FridaGadget
+version=v14.2.2
+versionCode=26
+author=Jussi
+description=zygisk module frida gadget
