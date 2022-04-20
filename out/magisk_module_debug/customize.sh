@@ -86,19 +86,17 @@ fi
 
 
 ui_print "- Extracting system libraries"
-mkdir "$MODPATH/system"
-mkdir "$MODPATH/system/lib"
-mkdir "$MODPATH/system/lib64"
+mkdir -p "$MODPATH/system"
+mkdir -p "$MODPATH/system/lib"
+mkdir -p "$MODPATH/system/lib64"
 if [ "$ARCH" = "arm" ] || [ "$ARCH" = "arm64" ]; then
   ui_print "- Extracting arm libraries"
   extract "$ZIPFILE" "system/lib/libminitool.so" "$MODPATH/system/lib" true
-#  extract "$ZIPFILE" "system/lib/libminitool.config.so" "$MODPATH/system/lib" true
+  extract "$ZIPFILE" "system/lib/libminitool.config.so" "$MODPATH/system/lib" true
 
-  if [ "$IS64BIT" = true ]; then
-    ui_print "- Extracting arm64 libraries"
-    extract "$ZIPFILE" "system/lib64/libminitool.so" "$MODPATH/system/lib64" true
-#    extract "$ZIPFILE" "system/lib64/libminitool.config.so" "$MODPATH/system/lib64" true
-  fi
+  ui_print "- Extracting arm64 libraries"
+  extract "$ZIPFILE" "system/lib64/libminitool.so" "$MODPATH/system/lib64" true
+  extract "$ZIPFILE" "system/lib64/libminitool.config.so" "$MODPATH/system/lib64" true
 fi
 
 extract "$ZIPFILE" "system/etc/minitool.prop" "$MODPATH/system/etc" true

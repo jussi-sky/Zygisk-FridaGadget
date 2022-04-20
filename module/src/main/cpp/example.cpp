@@ -7,14 +7,14 @@
 #include <malloc.h>
 #include <cstring>
 #include <dlfcn.h>
-#include <vector>
 #include "zygisk.hpp"
+#include <pthread.h>
 
 using zygisk::Api;
 using zygisk::AppSpecializeArgs;
 using zygisk::ServerSpecializeArgs;
 
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "Gadget", __VA_ARGS__)
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "Zygisk-FridaGadget", __VA_ARGS__)
 
 #ifdef __LP64__
 constexpr const char* kZygoteNiceName = "zygote64";
@@ -23,6 +23,9 @@ constexpr const char* nextLoadSo = "/system/lib64/libminitool.so";
 constexpr const char* kZygoteNiceName = "zygote";
 constexpr const char* nextLoadSo = "/system/lib/libminitool.so";
 #endif
+
+static char nice_process_name[256] = {0};
+static char package_name[256] = {0};
 
 static bool isApp(int uid) {
     if (uid < 0) {
@@ -35,13 +38,23 @@ static bool isApp(int uid) {
     return appId >= 10000 && appId <= 19999;
 }
 
+static void* gadget(void* args){
+
+    sleep(10);
+    void *handle = dlopen(nextLoadSo, RTLD_LAZY);
+    if (!handle) {
+        LOGD(" %s loaded in libgadget error %s", nice_process_name, dlerror());
+    } else {
+        LOGD(" %s load ' %s ' success ", nice_process_name,nextLoadSo);
+    }
+    return nullptr;
+}
+
 class MyModule : public zygisk::ModuleBase {
 
 private:
     Api *api;
     JNIEnv *env;
-    char nice_process_name[256] = {0};
-    char package_name[256] = {0};
     jint my_uid = 0;
 
 public:
@@ -137,13 +150,32 @@ public:
             jstring name = env->NewStringUTF(nice_process_name);
             env->CallStaticVoidMethod(java_Process, mtd_setArgV0, name);
 
-            void *handle = dlopen(nextLoadSo, RTLD_LAZY);
-            if (!handle) {
-                LOGD(" %s loaded in libgadget error %s", nice_process_name, dlerror());
-            } else {
-                LOGD(" %s load ' %s ' success ", nice_process_name,nextLoadSo);
+            pthread_t tid;
+            int ret = pthread_create(&tid, NULL, gadget, NULL);
+            if (ret != 0)
+            {
+                LOGD("pthread_create error: error_code=%d" ,ret);
             }
         }
+
+
+
+        //添加这种机制，就可以提前设置进程名， 从而让frida 的gadget 能够识别到
+//        jclass java_Process = env->FindClass("android/os/Process");
+//        if (java_Process != nullptr && isApp(my_uid)) {
+//            jmethodID mtd_setArgV0 = env->GetStaticMethodID(java_Process, "setArgV0",
+//                                                            "(Ljava/lang/String;)V");
+//            jstring name = env->NewStringUTF(nice_process_name);
+//            env->CallStaticVoidMethod(java_Process, mtd_setArgV0, name);
+//
+//            void *handle = dlopen(nextLoadSo, RTLD_LAZY);
+//            if (!handle) {
+//                LOGD(" %s loaded in libgadget error %s", nice_process_name, dlerror());
+//            } else {
+//                LOGD(" %s load ' %s ' success ", nice_process_name,nextLoadSo);
+//            }
+//        }
+
     }
 
 };

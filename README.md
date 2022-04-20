@@ -18,11 +18,13 @@
 
 ## Zygisk-ModuleTemplate
 
-Zygisk module template. [zygisk-module-sample](https://github.com/topjohnwu/zygisk-module-sample)
+[zygisk-module-sample](https://github.com/topjohnwu/zygisk-module-sample)
+
+https://forum.xda-developers.com/t/discussion-magisk-the-age-of-zygisk.4393877/
 
 ## Others
 
-And You can install it in Magisk24.0+
+You can install it in Magisk24.0+
 
 After reboot
 
