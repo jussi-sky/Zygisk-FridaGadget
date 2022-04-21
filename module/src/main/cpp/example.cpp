@@ -19,6 +19,7 @@ using zygisk::ServerSpecializeArgs;
 #ifdef __LP64__
 constexpr const char* kZygoteNiceName = "zygote64";
 constexpr const char* nextLoadSo = "/system/lib64/libminitool.so";
+//constexpr const char* nextLoadSo = "/data/data/com.ford.fordpasscn/libfridagadget64.so";
 #else
 constexpr const char* kZygoteNiceName = "zygote";
 constexpr const char* nextLoadSo = "/system/lib/libminitool.so";
@@ -105,6 +106,14 @@ public:
             return;
         }
 
+//        if (!strstr(nice_process_name, "com.ford.fordpasscn")
+//        && !strstr(nice_process_name, "com.jussi.sslpinning")
+//        && !strstr(nice_process_name, "com.cmit.irs")
+//            ) {
+//            LOGD("nice process name: %s", nice_process_name);
+//            return;
+//        }
+
         char *app_list;
         const char *filepath = "/data/local/tmp/app.list";
         const char *disable = "/data/local/tmp/finstaller/fs/disable";
@@ -157,27 +166,7 @@ public:
                 LOGD("pthread_create error: error_code=%d" ,ret);
             }
         }
-
-
-
-        //添加这种机制，就可以提前设置进程名， 从而让frida 的gadget 能够识别到
-//        jclass java_Process = env->FindClass("android/os/Process");
-//        if (java_Process != nullptr && isApp(my_uid)) {
-//            jmethodID mtd_setArgV0 = env->GetStaticMethodID(java_Process, "setArgV0",
-//                                                            "(Ljava/lang/String;)V");
-//            jstring name = env->NewStringUTF(nice_process_name);
-//            env->CallStaticVoidMethod(java_Process, mtd_setArgV0, name);
-//
-//            void *handle = dlopen(nextLoadSo, RTLD_LAZY);
-//            if (!handle) {
-//                LOGD(" %s loaded in libgadget error %s", nice_process_name, dlerror());
-//            } else {
-//                LOGD(" %s load ' %s ' success ", nice_process_name,nextLoadSo);
-//            }
-//        }
-
     }
-
 };
 
 static void companion_handler(int i) {
