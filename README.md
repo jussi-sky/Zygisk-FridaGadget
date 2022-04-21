@@ -31,6 +31,19 @@ After reboot
 You can find log in logcat
 
 ```
-logcat | grep Gadget
+logcat | grep Frida
+netstat -tunlp | grep 26000
+
+cd /data/local/tmp
+echo "com.xxx.xxx" > app.list
+
+adb forward tcp:27042 tcp:26000
+
+frida-ps -Ra
+frida -R gadget
+
+objection -Ng gadget explore
 ```
+
+
 
